@@ -102,7 +102,7 @@ st.write('株価の押し目を予測します。')
 if option == '【2432】DeNA':
 
     # データ取得
-    df_dena =pdr.get_data_yahoo('2432.T', date_st, date_fn).reset_index() # DeNA
+    df_dena =pdr.get_data_yahoo('2432.T', date_st, date_fn).reset_index() # 日産自動車
 
     # prophet の仕様に合わせ、カラム名を変更
     df_dena['ds'] = df_dena['Date'] # 日付データを「ds」に変更
@@ -117,35 +117,17 @@ if option == '【2432】DeNA':
     forecast = model.predict(future)
     forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail(7)
 
-       # 押し目株価を抽出
+    # 予測結果を可視化
+    fig1 = model.plot(forecast)
+
+    # 押し目株価を抽出
     df_dena_p = forecast['yhat'] # 通常の押し目株価
     df_dena_pl = forecast['yhat_lower'] # 最小の押し目株価
 
     #予測結果を表示
-    df = st.dataframe([df_dena_p, df_dena_pl])
-    print(df)
-    # st.dataframe(df_dena_pl)
-
-    # 予測結果を可視化
-    # fig1 = model.plot(forecast)
-    # fig1 = plt.figure(figsize=(14,10))
-    # x = df_dena_p.index #日付
-    # y = df_dena_p #押し目株価
-    # st.pyplot(x, y)
-
-    m = Prophet(changepoint_prior_scale=0.5)
-    pred_fig = m.plot(forecast)
-    a = add_changepoints_to_plot(pred_fig.gca(), m, forecast)
-
-    # 凡例
-    # plt.legend(loc='upper left')
-    # 軸ラベルを追加
-    plt.xlabel('ds', fontsize=10)
-    plt.ylabel('yhat', fontsize=10)
-    # グラフ表示
-    st.pyplot(pred_fig)
-
-
+    st.dataframe(df_dena_p)
+    st.dataframe(df_dena_pl)
+   
   
 
 elif option == '【7201】日産自動車':
