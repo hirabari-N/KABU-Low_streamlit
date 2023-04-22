@@ -1,3 +1,5 @@
+# テスト
+
 # 起動用コマンド
 # streamlit run C:\Users\inosh\OneDrive\デスクトップ\Streamlit\KABU-Low\main.py
 # pip install 
