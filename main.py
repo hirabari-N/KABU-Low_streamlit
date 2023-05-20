@@ -1,7 +1,13 @@
 
 # 起動用コマンド
 # streamlit run C:\Users\inosh\OneDrive\デスクトップ\Streamlit\KABU-Low\main.py
-# pip install 
+# pip install
+
+#GitHub に push するためのコマンド
+# git add .
+# git commit -m "20230520 commmit" ※日付を変える
+# git push origin main
+
 
 # 必要なライブラリをインポート
 import streamlit as st
