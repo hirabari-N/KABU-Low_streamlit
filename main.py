@@ -6,7 +6,6 @@
 #GitHub に push するためのコマンド
 # git add .
 # git commit -m "20230520 commmit" ※日付を変える
-# git remote add origin git@github.com:hirabari-N/KABU-Low_streamlit.git
 # git push origin main
 
 
@@ -40,11 +39,11 @@ yf.pdr_override()
 st.set_page_config(layout="wide")
 
 # 証券コード一覧を取得　(!!!注意!!!　コード調整時は「stockllist」以外をOFFにする)
-import requests
-url = "https://www.jpx.co.jp/markets/statistics-equities/misc/tvdivq0000001vg2-att/data_j.xls"
-r = requests.get(url)
-with open('data_j.xls', 'wb') as output:
-    output.write(r.content)
+# import requests
+# url = "https://www.jpx.co.jp/markets/statistics-equities/misc/tvdivq0000001vg2-att/data_j.xls"
+# r = requests.get(url)
+# with open('data_j.xls', 'wb') as output:
+#     output.write(r.content)
 stocklist = pd.read_excel("./data_j.xls")
 stocklist["コード"] = stocklist["コード"].astype(str)
 
@@ -54,6 +53,9 @@ stocklist["コード"] = stocklist["コード"].astype(str)
 
 # ↓↓↓↓↓サイドバー↓↓↓↓↓
 
+
+# リロード注意
+st.sidebar.warning('アップロード時はWebスクレイピングを必ずOFFに', icon="⚠️")
 
 
 # ↓↓↓「上場企業リスト」調整用↓↓↓
@@ -75,7 +77,7 @@ if growth:
     markets.append('グロース（内国株式）')
 
 # 業種の絞り込み
-industries = st.sidebar.multiselect(label="◎業種を選んでください",
+industries = st.sidebar.multiselect(label="◎業種を選んでください :green[(複数選択可)]",
              options=['水産・農林業', '鉱業', '建設業',
                       '食料品', '繊維製品', 'パルプ・紙', '化学', '医薬品', '石油・石炭製品', 'ゴム製品', 'ガラス・土石製品', '鉄鋼', '非鉄金属', '金属製品', '機械', '電気機器', '輸送用機器', '精密機器', 'その他製品',
                       '電気・ガス業', '陸運業', '海運業', '空運業', '倉庫・運輸関連業', '情報・通信業', '卸売業', '小売業', '銀行業', '証券、商品先物取引業', '保険業', 'その他金融業', '不動産業', 'サービス業'],
@@ -83,11 +85,11 @@ industries = st.sidebar.multiselect(label="◎業種を選んでください",
 )
 
 # 会社規模の絞り込み(規模コード)
-min_value, max_value = st.sidebar.slider(label='◎会社規模の範囲を指定してください(1:大規模 ～ 7:小規模)', min_value=1, max_value=7, value=(1, 4)) # value は初期値
+min_value, max_value = st.sidebar.slider(label='◎会社規模の範囲を指定してください :green[(1:大規模 ～ 7:小規模)]', min_value=1, max_value=7, value=(1, 4)) # value は初期値
 scale = list(range(min_value, max_value + 1))
 
 col = st.sidebar.columns(1)
-scale_none = col[0].checkbox(label='※規模コード「-」の銘柄も抽出する場合はチェック')
+scale_none = col[0].checkbox(label='← 規模コード「-」の銘柄も抽出する場合はチェック')
 
 if scale_none:
      scale.append('-')
@@ -98,42 +100,52 @@ if scale_none:
 st.sidebar.header(':office:特定銘柄の株価チェック:office:')
 
 # 証券コードの数値入力 (+必要処理)
-code = st.sidebar.text_input('◎4桁の証券コードを入力してください(半角英数字)', '2432')
+code = st.sidebar.text_input('◎4桁の証券コードを入力してください :green[(半角英数字、初期値:7203)]', '7203')
 code_t = code + ".T"
 codes = stocklist["コード"].values
 
 
 # 株価の予測算出における対象期間
-date_fn = st.sidebar.date_input('◎いつまでの株価を予測の算出に使いますか？(初期値:今日)',
+date_fn = st.sidebar.date_input('◎いつまでの株価を予測の算出に使いますか？ :green[(初期値:今日)]',
     min_value=datetime(2010, 1, 1),
     max_value=datetime.today(),
     value=datetime.today(),
 )
 
-days = st.sidebar.number_input('◎過去何日分にさかのぼって株価を取得しますか？(初期値:365)', value=365,)
+days = st.sidebar.number_input('◎過去何日分にさかのぼって株価を取得しますか？ :green[(初期値:365)]', value=365,)
 date_st = date_fn - timedelta(days)
 
 # チャートにおける表示範囲の調整
-days_2 = st.sidebar.slider('◎チャートに表示する期間を決めてください(単位:日)', value=90, min_value=0, max_value=days)
+days_2 = st.sidebar.slider('◎チャートに表示する期間を決めてください :green[(単位:日、初期値:90)]', value=90, min_value=0, max_value=days)
 
 # チャートにおける時間足の調整
-time_frame = st.sidebar.radio('◎チャートの時間足を決めてください(初期値:1wk=日足)',
-                              options=('1d','5d','1wk','1mo','3mo'),  # 時間足の選択
+time_frame = st.sidebar.radio('◎チャートの時間足を決めてください :green[(初期値:1日)]',
+                              options=('1日','5日','1週間','1ヶ月','3ヶ月'),  # 時間足の選択
                               index=0, horizontal=True,) # index はラジオボタンの初期値
 
-
+# チャート生成時に備えて時間足をコードに変換
+if time_frame == '1日':
+    time_frame_e = '1d'
+if time_frame == '5日':
+    time_frame_e = '5d'
+if time_frame == '1週間':
+    time_frame_e = '1wk'
+if time_frame == '1ヶ月':
+    time_frame_e = '1mo'
+if time_frame == '3ヶ月':
+    time_frame_e = '3mo'
 
 
 
 # ↓↓↓↓↓メインフィールド↓↓↓↓↓
 
 # アプリ名
-st.title(':chart:≪≪≪ :red[_KABU-Low_] ≫≫≫:japan:')
+st.title(':chart: :green[_≪≪≪_] :red[_KABU-Low_] :green[_≫≫≫_] :japan:')
 
 
 
 # ↓↓↓上場企業リスト↓↓↓
-st.header(':classical_building:上場企業リスト:classical_building:')
+st.header(':classical_building: 上場企業リスト :classical_building:')
 
 # 上場企業リストの呼び出し
 stocklist_l = stocklist.loc[stocklist["市場・商品区分"].isin(markets)
@@ -217,7 +229,7 @@ if code in codes:
 
     #銘柄名の表示
     stock_name = stocklist.loc[stocklist["コード"]==code, ["銘柄名"]].iat[0, 0]
-    st.header(':office:≪' + stock_name + '≫の株価チェック:office:')
+    st.header(':office: :green[_≪' + stock_name + '≫_] の株価チェック :office:')
 
 
     # ↓実測値↓
@@ -225,7 +237,7 @@ if code in codes:
 
     #引数『y_stock』にyfinance.downloadで取得した価格データを入れるコード
     df_stock = yf.download(code_t, start=date_st, end=date_fn,
-                           interval=time_frame, # interval：時間軸
+                           interval=time_frame_e, # interval：時間軸
                            auto_adjust=True) # auto_adjust：『始値 / 高値 / 安値 / 終値』の四本値を自動的に調整
 
     # チャートを生成    

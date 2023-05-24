@@ -8,3 +8,4 @@ yfinance
 datetime
 mplfinance
 requests
+xlrd
