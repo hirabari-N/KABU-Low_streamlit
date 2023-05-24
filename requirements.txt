@@ -6,3 +6,4 @@ prophet
 pandas_datareader
 yfinance
 datetime
+mplfinance

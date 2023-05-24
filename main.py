@@ -6,7 +6,7 @@
 #GitHub に push するためのコマンド
 # git add .
 # git commit -m "20230520 commmit" ※日付を変える
-# git remote add origin https://github.com/hirabari-N/KABU-Low_streamlit.git
+# git remote add origin git@github.com:hirabari-N/KABU-Low_streamlit.git
 # git push origin main
 
 
