@@ -40,11 +40,11 @@ yf.pdr_override()
 st.set_page_config(layout="wide")
 
 # 証券コード一覧を取得　(!!!注意!!!　コード調整時は「stockllist」以外をOFFにする)
-# import requests
-# url = "https://www.jpx.co.jp/markets/statistics-equities/misc/tvdivq0000001vg2-att/data_j.xls"
-# r = requests.get(url)
-# with open('data_j.xls', 'wb') as output:
-#     output.write(r.content)
+import requests
+url = "https://www.jpx.co.jp/markets/statistics-equities/misc/tvdivq0000001vg2-att/data_j.xls"
+r = requests.get(url)
+with open('data_j.xls', 'wb') as output:
+    output.write(r.content)
 stocklist = pd.read_excel("./data_j.xls")
 stocklist["コード"] = stocklist["コード"].astype(str)
 
